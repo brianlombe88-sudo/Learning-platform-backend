@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My LMS</title>
+    <style>
+        body { font-family: Arial; padding: 20px; text-align: center; }
+        .course { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 10px; }
+        button { background: blue; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>📚 Welcome to My Learning Platform</h1>
+    <div id="courses"></div>
+
+    <script>
+        async function loadCourses() {
+            const response = await fetch('/api/courses');
+            const courses = await response.json();
+            const container = document.getElementById('courses');
+            container.innerHTML = courses.map(course => `
+                <div class="course">
+                    <h3>${course.title}</h3>
+                    <p>${course.description}</p>
+                    <button>Enroll Now</button>
+                </div>
+            `).join('');
+        }
+        loadCourses();
+    </script>
+</body>
+</html>
