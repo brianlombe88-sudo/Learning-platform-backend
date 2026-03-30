@@ -11,8 +11,10 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors());
 app.use(express.json());
 
+const path = require("path");
+
 app.get("/", (req, res) => {
-  res.send("Backend is running");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
