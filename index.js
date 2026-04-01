@@ -5,22 +5,14 @@ require("dotenv").config();
 
 const app = express();
 
-// VERY IMPORTANT FIX
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
+// Enable CORS (VERY IMPORTANT)
+app.use(cors());
 app.use(express.json());
 
 // Connect MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log(err));
 
 // Models
 const User = require("./models/User");
@@ -54,11 +46,11 @@ app.post("/login", async (req, res) => {
   res.json({ token: user._id });
 });
 
-// Create course (NO AUTH for now to avoid errors)
+// Create course
 app.post("/courses", async (req, res) => {
-  const { title, description, price } = req.body;
-
   try {
+    const { title, description, price } = req.body;
+
     const course = new Course({
       title,
       description,
@@ -69,6 +61,7 @@ app.post("/courses", async (req, res) => {
     await course.save();
 
     res.json({ message: "Course created" });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -84,5 +77,11 @@ app.get("/courses", async (req, res) => {
   }
 });
 
-// Dummy payment route
-app.post
+// Dummy payment route (temporary)
+app.post("/create-checkout-session", (req, res) => {
+  res.json({ url: "https://example.com" });
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log("Server running"));
