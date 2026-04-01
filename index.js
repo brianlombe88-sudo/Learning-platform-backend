@@ -5,19 +5,28 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
+// VERY IMPORTANT FIX
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
 // Connect MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.log(err));
 
 // Models
 const User = require("./models/User");
 const Course = require("./models/Course");
 
-// Routes
+// Test route
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
@@ -45,33 +54,35 @@ app.post("/login", async (req, res) => {
   res.json({ token: user._id });
 });
 
-// Create course
+// Create course (NO AUTH for now to avoid errors)
 app.post("/courses", async (req, res) => {
   const { title, description, price } = req.body;
 
-  const course = new Course({
-    title,
-    description,
-    price,
-    tutorId: "temp"
-  });
+  try {
+    const course = new Course({
+      title,
+      description,
+      price,
+      tutorId: "test"
+    });
 
-  await course.save();
+    await course.save();
 
-  res.json({ message: "Course created" });
+    res.json({ message: "Course created" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get courses
 app.get("/courses", async (req, res) => {
-  const courses = await Course.find();
-  res.json(courses);
+  try {
+    const courses = await Course.find();
+    res.json(courses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Dummy payment route (temporary)
-app.post("/create-checkout-session", (req, res) => {
-  res.json({ url: "https://example.com" });
-});
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("Server running"));
+// Dummy payment route
+app.post
